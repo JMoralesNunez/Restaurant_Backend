@@ -90,16 +90,20 @@ public class ApplicationDbContext : DbContext
     private void SeedData(ModelBuilder modelBuilder)
     {
         // Create admin user (password: Admin123!)
+        // Hardcoded hash for "Admin123!" to avoid dynamic model changes
+        const string adminPasswordHash = "$2a$11$qM87vAnm.iS/vSUp9R0hgeOQyK6LzJpX0XkQYI7W5Yy2z6n1X.y6K";
+        var staticDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         modelBuilder.Entity<User>().HasData(
             new User
             {
                 Id = 1,
                 Name = "Administrator",
                 Email = "admin@restaurant.com",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                PasswordHash = adminPasswordHash,
                 Role = UserRole.ADMIN,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = staticDate,
+                UpdatedAt = staticDate
             }
         );
     }
