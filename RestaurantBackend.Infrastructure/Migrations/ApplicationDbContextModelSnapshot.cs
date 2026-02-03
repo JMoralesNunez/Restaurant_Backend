@@ -17,7 +17,7 @@ namespace RestaurantBackend.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "8.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -162,7 +162,7 @@ namespace RestaurantBackend.Infrastructure.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "admin@restaurant.com",
                             Name = "Administrator",
-                            PasswordHash = "$2a$11$qM87vAnm.iS/vSUp9R0hgeOQyK6LzJpX0XkQYI7W5Yy2z6n1X.y6K",
+                            PasswordHash = "$2a$11$YHJpfD4gUQ3x9QfTEQ0HTeEzVowLHFvBb5sSrtCQXr.zkj1ycdONK",
                             Role = "ADMIN",
                             UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         });

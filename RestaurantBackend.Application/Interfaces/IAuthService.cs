@@ -6,4 +6,5 @@ public interface IAuthService
 {
     Task<AuthResponseDto> RegisterAsync(CreateUserDto createUserDto);
     Task<AuthResponseDto> LoginAsync(LoginDto loginDto);
+    Task<UserDto> PromoteToAdminAsync(int userId);
 }

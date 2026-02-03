@@ -137,7 +137,8 @@ public class OrderService : IOrderService
             }
         }
 
-        await _orderRepository.DeleteAsync(id);
+        // Change status to CANCELLED instead of deleting
+        await _orderRepository.UpdateStatusAsync(id, OrderStatus.CANCELLED);
     }
 
     private static OrderDto MapToOrderDto(Order order)

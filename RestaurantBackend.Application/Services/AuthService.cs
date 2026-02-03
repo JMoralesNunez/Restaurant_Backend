@@ -1,6 +1,7 @@
 using RestaurantBackend.Application.DTOs;
 using RestaurantBackend.Application.Interfaces;
 using RestaurantBackend.Domain.Entities;
+using RestaurantBackend.Domain.Enums;
 using RestaurantBackend.Domain.Interfaces;
 
 namespace RestaurantBackend.Application.Services;
@@ -35,7 +36,7 @@ public class AuthService : IAuthService
             Name = createUserDto.Name,
             Email = createUserDto.Email,
             PasswordHash = _passwordHasher.HashPassword(createUserDto.Password),
-            Role = createUserDto.Role,
+            Role = UserRole.USER,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -84,6 +85,20 @@ public class AuthService : IAuthService
             Token = token,
             User = MapToUserDto(user)
         };
+    }
+
+    public async Task<UserDto> PromoteToAdminAsync(int userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+        {
+            throw new KeyNotFoundException($"User with ID {userId} not found");
+        }
+
+        user.Role = UserRole.ADMIN;
+        var updatedUser = await _userRepository.UpdateAsync(user);
+
+        return MapToUserDto(updatedUser);
     }
 
     private static UserDto MapToUserDto(User user)

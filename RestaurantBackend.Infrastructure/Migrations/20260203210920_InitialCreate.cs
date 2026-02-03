@@ -101,7 +101,7 @@ namespace RestaurantBackend.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "CreatedAt", "Email", "Name", "PasswordHash", "Role", "UpdatedAt" },
-                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "admin@restaurant.com", "Administrator", "$2a$11$qM87vAnm.iS/vSUp9R0hgeOQyK6LzJpX0XkQYI7W5Yy2z6n1X.y6K", "ADMIN", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
+                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "admin@restaurant.com", "Administrator", "$2a$11$YHJpfD4gUQ3x9QfTEQ0HTeEzVowLHFvBb5sSrtCQXr.zkj1ycdONK", "ADMIN", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",

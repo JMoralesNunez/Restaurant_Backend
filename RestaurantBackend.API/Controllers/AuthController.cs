@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantBackend.Application.DTOs;
 using RestaurantBackend.Application.Interfaces;
@@ -40,6 +41,21 @@ public class AuthController : ControllerBase
         catch (UnauthorizedAccessException ex)
         {
             return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpPatch("promote/{userId}")]
+    [Authorize(Roles = "ADMIN")]
+    public async Task<ActionResult<UserDto>> Promote(int userId)
+    {
+        try
+        {
+            var result = await _authService.PromoteToAdminAsync(userId);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
         }
     }
 }
