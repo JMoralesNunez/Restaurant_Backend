@@ -8,6 +8,8 @@ public class Product
     public decimal Price { get; set; }
     public int Stock { get; set; } = 0;
     public bool IsActive { get; set; } = true;
+    public string? ImageUrl { get; set; }
+    public string? ImagePublicId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation property

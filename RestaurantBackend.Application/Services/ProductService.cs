@@ -8,10 +8,12 @@ namespace RestaurantBackend.Application.Services;
 public class ProductService : IProductService
 {
     private readonly IProductRepository _productRepository;
+    private readonly ICloudinaryService _cloudinaryService;
 
-    public ProductService(IProductRepository productRepository)
+    public ProductService(IProductRepository productRepository, ICloudinaryService cloudinaryService)
     {
         _productRepository = productRepository;
+        _cloudinaryService = cloudinaryService;
     }
 
     public async Task<IEnumerable<ProductDto>> GetAllProductsAsync(bool isAdmin)
@@ -96,12 +98,40 @@ public class ProductService : IProductService
         return MapToProductDto(updatedProduct);
     }
 
+    public async Task<ProductDto> UpdateProductImageAsync(int id, string imageUrl, string imagePublicId)
+    {
+        var product = await _productRepository.GetByIdAsync(id);
+        if (product == null)
+        {
+            throw new KeyNotFoundException($"Product with ID {id} not found");
+        }
+
+        // Delete old image if exists
+        if (!string.IsNullOrEmpty(product.ImagePublicId))
+        {
+            await _cloudinaryService.DeleteImageAsync(product.ImagePublicId);
+        }
+
+        product.ImageUrl = imageUrl;
+        product.ImagePublicId = imagePublicId;
+
+        var updatedProduct = await _productRepository.UpdateAsync(product);
+        return MapToProductDto(updatedProduct);
+    }
+
     public async Task DeleteProductAsync(int id)
     {
         // Check if product has orders
         if (await _productRepository.HasOrdersAsync(id))
         {
             throw new InvalidOperationException("Cannot delete product with existing orders");
+        }
+
+        // Delete image from Cloudinary if exists
+        var product = await _productRepository.GetByIdAsync(id);
+        if (product != null && !string.IsNullOrEmpty(product.ImagePublicId))
+        {
+            await _cloudinaryService.DeleteImageAsync(product.ImagePublicId);
         }
 
         await _productRepository.DeleteAsync(id);
@@ -117,6 +147,7 @@ public class ProductService : IProductService
             Price = product.Price,
             Stock = product.Stock,
             IsActive = product.IsActive,
+            ImageUrl = product.ImageUrl,
             CreatedAt = product.CreatedAt
         };
     }

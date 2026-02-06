@@ -48,6 +48,8 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Price).HasPrecision(10, 2).IsRequired();
             entity.Property(e => e.Stock).IsRequired();
             entity.Property(e => e.IsActive).IsRequired();
+            entity.Property(e => e.ImageUrl).HasMaxLength(500);
+            entity.Property(e => e.ImagePublicId).HasMaxLength(255);
             entity.Property(e => e.CreatedAt).IsRequired();
 
             // Relationships
