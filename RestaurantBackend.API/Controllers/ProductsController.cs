@@ -11,10 +11,12 @@ namespace RestaurantBackend.API.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
+    private readonly ICloudinaryService _cloudinaryService;
 
-    public ProductsController(IProductService productService)
+    public ProductsController(IProductService productService, ICloudinaryService cloudinaryService)
     {
         _productService = productService;
+        _cloudinaryService = cloudinaryService;
     }
 
     [HttpGet]
@@ -40,19 +42,58 @@ public class ProductsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "ADMIN")]
-    public async Task<ActionResult<ProductDto>> Create(CreateProductDto createProductDto)
+    public async Task<ActionResult<ProductDto>> Create([FromForm] CreateProductDto createProductDto, IFormFile? image)
     {
-        var product = await _productService.CreateProductAsync(createProductDto);
-        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+        try
+        {
+            // Create product first
+            var product = await _productService.CreateProductAsync(createProductDto);
+
+            // Upload image if provided
+            if (image != null)
+            {
+                var validationError = ValidateImageFile(image);
+                if (validationError != null)
+                {
+                    return BadRequest(new { message = validationError });
+                }
+
+                using var stream = image.OpenReadStream();
+                var (imageUrl, publicId) = await _cloudinaryService.UploadImageAsync(stream, image.FileName);
+                product = await _productService.UpdateProductImageAsync(product.Id, imageUrl, publicId);
+            }
+
+            return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "ADMIN")]
-    public async Task<ActionResult<ProductDto>> Update(int id, UpdateProductDto updateProductDto)
+    public async Task<ActionResult<ProductDto>> Update(int id, [FromForm] UpdateProductDto updateProductDto, IFormFile? image)
     {
         try
         {
+            // Update product data
             var product = await _productService.UpdateProductAsync(id, updateProductDto);
+
+            // Upload new image if provided
+            if (image != null)
+            {
+                var validationError = ValidateImageFile(image);
+                if (validationError != null)
+                {
+                    return BadRequest(new { message = validationError });
+                }
+
+                using var stream = image.OpenReadStream();
+                var (imageUrl, publicId) = await _cloudinaryService.UploadImageAsync(stream, image.FileName);
+                product = await _productService.UpdateProductImageAsync(product.Id, imageUrl, publicId);
+            }
+
             return Ok(product);
         }
         catch (KeyNotFoundException)
@@ -63,6 +104,32 @@ public class ProductsController : ControllerBase
         {
             return BadRequest(new { message = ex.Message });
         }
+    }
+
+    private string? ValidateImageFile(IFormFile image)
+    {
+        // Validate file
+        if (image.Length == 0)
+        {
+            return "Image file is empty";
+        }
+
+        // Validate file type
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var fileExtension = Path.GetExtension(image.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(fileExtension))
+        {
+            return "Invalid file type. Allowed types: jpg, jpeg, png, webp";
+        }
+
+        // Validate file size (5MB max)
+        const int maxFileSize = 5 * 1024 * 1024;
+        if (image.Length > maxFileSize)
+        {
+            return "File size exceeds 5MB limit";
+        }
+
+        return null;
     }
 
     [HttpDelete("{id}")]

@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RestaurantBackend.API.Filters;
 using RestaurantBackend.Application.Interfaces;
 using RestaurantBackend.Application.Services;
 using RestaurantBackend.Domain.Interfaces;
 using RestaurantBackend.Infrastructure.Data;
 using RestaurantBackend.Infrastructure.Repositories;
 using RestaurantBackend.Infrastructure.Security;
+using RestaurantBackend.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +40,7 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
 // 3. JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -84,6 +87,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Restaurant API", Version = "v1" });
+    // c.EnableAnnotations();
+    // c.OperationFilter<FileUploadOperationFilter>();
     
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
