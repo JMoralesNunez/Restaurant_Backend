@@ -11,6 +11,8 @@ using RestaurantBackend.Infrastructure.Data;
 using RestaurantBackend.Infrastructure.Repositories;
 using RestaurantBackend.Infrastructure.Security;
 using RestaurantBackend.Infrastructure.Services;
+using RestaurantBackend.API.Hubs;
+using RestaurantBackend.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+builder.Services.AddScoped<IOrderNotificationService, OrderNotificationService>();
+builder.Services.AddSignalR();
 
 // 3. JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -71,7 +75,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:4200" })
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials(); // Required for SignalR
     });
 });
 
@@ -142,5 +147,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<OrderHub>("/hubs/order");
 
 app.Run();

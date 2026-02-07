@@ -10,13 +10,16 @@ public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
+    private readonly IOrderNotificationService _notificationService;
 
     public OrderService(
         IOrderRepository orderRepository,
-        IProductRepository productRepository)
+        IProductRepository productRepository,
+        IOrderNotificationService notificationService)
     {
         _orderRepository = orderRepository;
         _productRepository = productRepository;
+        _notificationService = notificationService;
     }
 
     public async Task<IEnumerable<OrderDto>> GetAllOrdersAsync(int? userId, bool isAdmin)
@@ -103,12 +106,20 @@ public class OrderService : IOrderService
 
         // Reload with details
         var orderWithDetails = await _orderRepository.GetByIdWithDetailsAsync(createdOrder.Id);
+
+        // Notify admins
+        await _notificationService.NotifyNewOrderAsync(createdOrder.Id);
+
         return MapToOrderDto(orderWithDetails!);
     }
 
     public async Task<OrderDto> UpdateOrderStatusAsync(int id, OrderStatus status)
     {
         var order = await _orderRepository.UpdateStatusAsync(id, status);
+
+        // Notify user and admins
+        await _notificationService.NotifyOrderStatusChangedAsync(order.Id, order.UserId, status.ToString());
+
         var orderWithDetails = await _orderRepository.GetByIdWithDetailsAsync(order.Id);
         return MapToOrderDto(orderWithDetails!);
     }
@@ -139,6 +150,9 @@ public class OrderService : IOrderService
 
         // Change status to CANCELLED instead of deleting
         await _orderRepository.UpdateStatusAsync(id, OrderStatus.CANCELLED);
+
+        // Notify user and admins
+        await _notificationService.NotifyOrderStatusChangedAsync(id, order.UserId, "CANCELLED");
     }
 
     private static OrderDto MapToOrderDto(Order order)
