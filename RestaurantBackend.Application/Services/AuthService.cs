@@ -104,7 +104,7 @@ public class AuthService : IAuthService
     public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
     {
         var users = await _userRepository.GetAllAsync();
-        return users.Select(MapToUserDto);
+        return users.OrderByDescending(u => u.Id).Select(MapToUserDto);
     }
 
     public async Task<UserDto> UpdateUserAsync(int id, UpdateUserDto updateUserDto)

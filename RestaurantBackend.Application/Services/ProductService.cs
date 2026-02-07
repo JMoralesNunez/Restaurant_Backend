@@ -22,7 +22,7 @@ public class ProductService : IProductService
             ? await _productRepository.GetAllAsync()
             : await _productRepository.GetActiveProductsAsync();
 
-        return products.Select(MapToProductDto);
+        return products.OrderByDescending(p => p.Id).Select(MapToProductDto);
     }
 
     public async Task<ProductDto?> GetProductByIdAsync(int id)
