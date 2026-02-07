@@ -1,5 +1,7 @@
 namespace RestaurantBackend.Domain.Entities;
 
+using RestaurantBackend.Domain.Enums;
+
 public class Product
 {
     public int Id { get; set; }
@@ -10,6 +12,7 @@ public class Product
     public bool IsActive { get; set; } = true;
     public string? ImageUrl { get; set; }
     public string? ImagePublicId { get; set; }
+    public ProductCategory Category { get; set; } = ProductCategory.Food;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation property

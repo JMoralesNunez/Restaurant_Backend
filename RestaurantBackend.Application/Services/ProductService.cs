@@ -51,6 +51,7 @@ public class ProductService : IProductService
             Price = createProductDto.Price,
             Stock = createProductDto.Stock,
             IsActive = createProductDto.IsActive,
+            Category = createProductDto.Category,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -93,6 +94,9 @@ public class ProductService : IProductService
 
         if (updateProductDto.IsActive.HasValue)
             product.IsActive = updateProductDto.IsActive.Value;
+
+        if (updateProductDto.Category.HasValue)
+            product.Category = updateProductDto.Category.Value;
 
         var updatedProduct = await _productRepository.UpdateAsync(product);
         return MapToProductDto(updatedProduct);
@@ -148,6 +152,7 @@ public class ProductService : IProductService
             Stock = product.Stock,
             IsActive = product.IsActive,
             ImageUrl = product.ImageUrl,
+            Category = product.Category,
             CreatedAt = product.CreatedAt
         };
     }

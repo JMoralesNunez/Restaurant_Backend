@@ -101,6 +101,41 @@ public class AuthService : IAuthService
         return MapToUserDto(updatedUser);
     }
 
+    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+    {
+        var users = await _userRepository.GetAllAsync();
+        return users.Select(MapToUserDto);
+    }
+
+    public async Task<UserDto> UpdateUserAsync(int id, UpdateUserDto updateUserDto)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            throw new KeyNotFoundException($"User with ID {id} not found");
+        }
+
+        if (updateUserDto.Name != null) user.Name = updateUserDto.Name;
+        if (updateUserDto.Email != null) user.Email = updateUserDto.Email;
+        if (updateUserDto.Role.HasValue) user.Role = updateUserDto.Role.Value;
+
+        user.UpdatedAt = DateTime.UtcNow;
+
+        var updatedUser = await _userRepository.UpdateAsync(user);
+        return MapToUserDto(updatedUser);
+    }
+
+    public async Task DeleteUserAsync(int id)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            throw new KeyNotFoundException($"User with ID {id} not found");
+        }
+
+        await _userRepository.DeleteAsync(id);
+    }
+
     private static UserDto MapToUserDto(User user)
     {
         return new UserDto

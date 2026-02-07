@@ -13,3 +13,10 @@ public enum OrderStatus
     DELIVERED,
     CANCELLED
 }
+
+public enum ProductCategory
+{
+    Food,
+    Drink,
+    Dessert
+}
