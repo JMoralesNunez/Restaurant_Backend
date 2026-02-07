@@ -7,6 +7,7 @@ public class OrderItem
     public int ProductId { get; set; }
     public int Quantity { get; set; }
     public decimal Price { get; set; } // Historical price at the time of order
+    public string? Comment { get; set; }
 
     // Navigation properties
     public Order Order { get; set; } = null!;

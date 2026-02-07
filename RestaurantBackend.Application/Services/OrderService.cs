@@ -92,7 +92,8 @@ public class OrderService : IOrderService
             {
                 ProductId = itemDto.ProductId,
                 Quantity = itemDto.Quantity,
-                Price = product.Price // Copy current price
+                Price = product.Price, // Copy current price
+                Comment = itemDto.Comment
             };
 
             order.OrderItems.Add(orderItem);
@@ -171,7 +172,8 @@ public class OrderService : IOrderService
                 ProductId = item.ProductId,
                 ProductName = item.Product?.Name ?? string.Empty,
                 Quantity = item.Quantity,
-                Price = item.Price
+                Price = item.Price,
+                Comment = item.Comment
             }).ToList()
         };
     }
